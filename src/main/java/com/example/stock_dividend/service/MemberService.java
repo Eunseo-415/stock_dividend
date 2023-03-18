@@ -1,5 +1,7 @@
 package com.example.stock_dividend.service;
 
+import com.example.stock_dividend.exception.impl.AlreadyExistUserException;
+import com.example.stock_dividend.exception.impl.UserNotFoundException;
 import com.example.stock_dividend.model.Auth;
 import com.example.stock_dividend.model.MemberEntity;
 import com.example.stock_dividend.persist.MemberRepository;
@@ -28,7 +30,7 @@ public class MemberService implements UserDetailsService {
     public MemberEntity register(Auth.SignUp member){
         boolean exist = this.memberRepository.existsByUsername(member.getUsername());
         if(exist){
-            throw new RuntimeException("이미 사용중인 아이디 입니다");
+            throw new AlreadyExistUserException();
         }
 
         member.setPassword(this.passwordEncoder.encode(member.getPassword()));
@@ -39,7 +41,7 @@ public class MemberService implements UserDetailsService {
 
     public MemberEntity authenticate(Auth.SignIn member){
         var user = this.memberRepository.findByUsername(member.getUsername())
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 아이디 입니다: " + member.getUsername()));
+                .orElseThrow(UserNotFoundException::new);
 
         if(!this.passwordEncoder.matches(member.getPassword(), user.getPassword())){
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");

@@ -1,5 +1,6 @@
 package com.example.stock_dividend.service;
 
+import com.example.stock_dividend.exception.impl.NoCompanyException;
 import com.example.stock_dividend.model.Company;
 import com.example.stock_dividend.model.Dividend;
 import com.example.stock_dividend.model.ScrapedResult;
@@ -73,7 +74,7 @@ public class CompanyService {
 
     public String deleteCompany(String ticker){
         var company = this.companyRepository.findByTicker(ticker)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 회사입니다: " + ticker));
+                .orElseThrow(() -> new NoCompanyException());
         this.dividendRepository.deleteAllByCompanyId(company.getId());
         this.companyRepository.delete(company);
         this.deleteAutoCompleteKeyword(company.getName());
